@@ -1,13 +1,17 @@
 import React, {Component} from 'react';
 import AptList from './AptList'
-import { without } from 'lodash';
+import lodash from 'lodash';
 import AddAppointment from './AddAppointment'
+import SearchAppointments from './SearchAppointments'
 
 class MainInterface extends Component {
   constructor(props) {
     super(props);
     this.state = {
       aptBodyVisible: false,
+      orderBy: 'petName',
+      orderDir: 'asc',
+      queryText: '',
       myAppointments: []
     }
   }
@@ -28,7 +32,7 @@ class MainInterface extends Component {
 
   deleteMessage(item) {
     let allApts = this.state.myAppointments;
-    let newApts = without(allApts, item);
+    let newApts = lodash.without(allApts, item);
     this.setState({
       myAppointments: newApts
     });
@@ -49,8 +53,40 @@ class MainInterface extends Component {
     })
   }
 
+  reOrder(orderBy, orderDir) {
+    this.setState({
+      orderBy,
+      orderDir
+    })
+  }
+
+  onSearchApts(q) {
+    this.setState({
+      queryText: q
+    })
+  }
+
   render() {
-    let filteredApts = this.state.myAppointments;
+    let orderDir = this.state.orderDir
+    let orderBy = this.state.orderBy
+    let filteredApts = []
+    let queryText = this.state.queryText
+    let myAppointments = this.state.myAppointments
+
+    myAppointments.forEach(function(item) {
+      if(
+        (item.petName.toLowerCase().indexOf(queryText)!==-1) ||
+        (item.ownerName.toLowerCase().indexOf(queryText)!==-1) ||
+        (item.aptDate.toLowerCase().indexOf(queryText)!==-1) ||
+        (item.aptNotes.toLowerCase().indexOf(queryText)!==-1)
+      ) {
+        filteredApts.push(item);
+      }
+    });
+
+    filteredApts = lodash.orderBy(filteredApts, (item) => {
+      return item[orderBy].toLowerCase()
+    }, orderDir)
     filteredApts = filteredApts.map((item, index) => {
       return (
         <AptList key={index} singleItem = {item} whichItem={item} onDelete={this.deleteMessage.bind(this)}/>
@@ -61,6 +97,11 @@ class MainInterface extends Component {
         <AddAppointment bodyVisible={this.state.aptBodyVisible}
                         handleToggle={this.toggleAddDisplay.bind(this)}
                         addApt = {this.addItem.bind(this)}
+        />
+        <SearchAppointments orderBy={this.state.orderBy}
+                            orderDir={this.state.orderDir}
+                            onReOrder={this.reOrder.bind(this)}
+                            onSearch={this.onSearchApts.bind(this)}
         />
         <div className="item-list media-list">
           <ul className="item-list media-list">
