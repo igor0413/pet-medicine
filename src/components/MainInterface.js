@@ -3,6 +3,7 @@ import AptList from './AptList'
 import lodash from 'lodash';
 import AddAppointment from './AddAppointment'
 import SearchAppointments from './SearchAppointments'
+import myData from '../assets/data'
 
 class MainInterface extends Component {
   constructor(props) {
@@ -17,18 +18,21 @@ class MainInterface extends Component {
   }
 
   componentDidMount() {
-    this.serverRequest = $.get('./dist/data.json', result => {
-      let tempApts;
-      tempApts = result;
-      this.setState({
-        myAppointments: tempApts
-      });
-    })
+    this.setState({
+      myAppointments: myData
+    });
+    // this.serverRequest = $.get('./dist/data.json', result => {
+    //   let tempApts;
+    //   tempApts = result;
+    //   this.setState({
+    //     myAppointments: tempApts
+    //   });
+    // })
   }
 
-  componentWillUnmount() {
-    this.serverRequest.abort();
-  }
+  // componentWillUnmount() {
+  //   this.serverRequest.abort();
+  // }
 
   deleteMessage(item) {
     let allApts = this.state.myAppointments;
